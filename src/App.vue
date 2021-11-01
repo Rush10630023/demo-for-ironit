@@ -44,7 +44,7 @@ export default {
     return {
       api_key: process.env.VUE_APP_WEATHER_KEY,
       base_url: 'https://api.openweathermap.org/data/2.5/',
-      query: 'Taichung',
+      query: 'Taipei',
       weather: {},
       date: ''
     }
