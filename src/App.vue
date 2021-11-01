@@ -1,22 +1,31 @@
 <template>
-  <div id="app">
+  <div id="app" :class="weather.main && weather.main.temp > 16 ? 'warm' : ''">
     <div class="container">
       <!-- search bar -->
       <div class="search-box">
-        <input type="text" placeholder="Search...." class="search-bar" />
+        <div class="search-box">
+          <input
+            type="text"
+            class="search-bar"
+            placeholder="Search....."
+            v-model="query"
+            @keyup.enter="fetchWeather"
+          />
+        </div>
+
       </div>
 
       <div class="weather-wrapper">
         <!-- location & date info -->
         <div class="location-box">
-          <div class="location">Taichung</div>
-          <div class="date">Octorber 8th 2020</div>
+          <div class="location">{{ weather.name }}</div>
+          <div class="date">{{ currentDate }}</div>
         </div>
 
         <!-- weather info -->
         <div class="weather-box">
-          <div class="temperature">26°C</div>
-          <div class="weather">Cloud</div>
+          <div class="temperature">{{ Math.round(weather.main.temp) }}°C</div>
+          <div class="weather">{{ weather.weather[0].main }}</div>
         </div>
       </div>
     </div>
@@ -24,9 +33,42 @@
 </template>
 
 <script>
+import axios from 'axios'
+import dayjs from 'dayjs'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+dayjs.extend(advancedFormat)
 
 export default {
   name: 'App',
+  data() {
+    return {
+      api_key: process.env.VUE_APP_WEATHER_KEY,
+      base_url: 'https://api.openweathermap.org/data/2.5/',
+      query: 'Taichung',
+      weather: {},
+      date: ''
+    }
+  },
+  methods: {
+    async fetchWeather() {
+      const response = await axios.get(`${this.base_url}weather`, {
+          params: {
+            q: this.query,
+            units: 'metric',
+            APPID: this.api_key
+          }
+      }).catch((error) => console.log(error))
+      console.log(await response.data)
+      this.weather = await response.data;
+    }
+  },computed: {
+    currentDate() {
+      return dayjs().format(`MMMM Do YYYY`)
+    },
+  },
+  created() {
+    this.fetchWeather()
+  }
 }
 </script>
 
